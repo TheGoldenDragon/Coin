@@ -36,10 +36,11 @@ const initP2PServer = (p2pPort: number) => {
         //const port = req.connection.remotePort;
         if(ip != req.connection.localAddress.replace(/^.*:/, '')){
             acceptConnection(ws);
-            console.log("Connecting ip: " + ip);
+
             if(ip != null && ip != undefined && !IsPeerInList(ip+":"+p2pPort)){
+                console.log("Connecting ip: ws://"+ip+":"+p2pPort);
                 console.log("Try connect to this ip....");
-                connectToPeer(ip+":"+p2pPort);
+                connectToPeer("ws://"+ip+":"+p2pPort);
             }
         }
     });
@@ -70,8 +71,7 @@ const openConnection = (ws: WebSocket) => {
         console.log("Added peer " + ws.url);
         write(ws, queryPeersMsg());
     }
-           
-    
+               
     broadcast(responsePeerListMsg());
     write(ws, queryChainLengthMsg());
 
