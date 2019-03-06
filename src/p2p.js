@@ -53,7 +53,10 @@ const acceptConnection = (ws) => {
 };
 const openConnection = (ws) => {
     console.log('Opened connection to: ' + ws.url);
-    sockets.push(ws);
+    if (ws != null && ws != undefined && !IsSocketInList(ws)) {
+        console.log('Opened connection to: ' + ws.url);
+        sockets.push(ws);
+    }
     if (ws.url != null && ws.url != "null" && ws.url != undefined && !IsPeerInList(ws.url)) {
         peers.push(ws.url);
         console.log("Added peer " + ws.url);
@@ -212,6 +215,16 @@ function IsPeerInList(newPeer) {
     let check = false;
     peers.forEach(peer => {
         if (peer == newPeer) {
+            check = true;
+        }
+    });
+    return check;
+}
+//Check if peer is in the peer list already.
+function IsSocketInList(newSocket) {
+    let check = false;
+    sockets.forEach(socket => {
+        if (socket.url == newSocket.url) {
             check = true;
         }
     });

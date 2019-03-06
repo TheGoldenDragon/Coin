@@ -64,7 +64,8 @@ const acceptConnection = (ws: WebSocket) => {
 
 const openConnection = (ws: WebSocket) => {
     console.log('Opened connection to: ' + ws.url);
-    if(!IsSocketInList(ws)){
+    if(ws != null && ws != undefined && !IsSocketInList(ws)){
+        console.log('Opened connection to: ' + ws.url);
         sockets.push(ws);
     }
 
@@ -239,7 +240,7 @@ function IsPeerInList(newPeer){
 function IsSocketInList(newSocket){
     let check = false;
     sockets.forEach(socket => {
-        if(socket == newSocket){
+        if(socket.url == newSocket.url){
             check = true;
         }
     });
