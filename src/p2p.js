@@ -73,7 +73,7 @@ const closeConnection = (myWs, trigger) => {
     console.log('Connection ' + trigger + ' with peer: ' + myWs.url);
     sockets.splice(sockets.indexOf(myWs), 1);
     peers.splice(peers.indexOf(myWs.url), 1);
-    if (server.clients.size == 0 && peers.length == 0) {
+    if (peers.length == 0) {
         startupPeerList.forEach(address => {
             console.log('Trying to connect node to: ' + address);
             connectToPeer(address);
@@ -237,7 +237,7 @@ const connectToPeer = (newPeer) => {
     });
     ws.on('error', () => {
         console.log('Failed to connect to: ' + newPeer);
-        if (server.clients.size == 0 && peers.length == 0) {
+        if (peers.length == 0) {
             startupPeerList.forEach(address => {
                 console.log('Trying to connect node to: ' + address);
                 connectToPeer(address);
