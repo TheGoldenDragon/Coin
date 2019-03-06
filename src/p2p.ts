@@ -37,7 +37,7 @@ const initP2PServer = (p2pPort: number) => {
         if(ip != req.connection.localAddress.replace(/^.*:/, '')){
             acceptConnection(ws);
 
-            if(ip != null && ip != undefined && !IsPeerInList(ip+":"+p2pPort)){
+            if(ip != null && ip != undefined && !IsPeerInList("ws://"+ip+":"+p2pPort)){
                 console.log("Connecting ip: ws://"+ip+":"+p2pPort);
                 console.log("Try connect to this ip....");
                 connectToPeer("ws://"+ip+":"+p2pPort);
@@ -47,7 +47,7 @@ const initP2PServer = (p2pPort: number) => {
 
     console.log('Listening websocket p2p port on: ' + p2pPort);   
     startupPeerList.forEach(address => {
-        console.log('Connecting to first peer: ' + address);
+        console.log('Connecting to peer: ' + address);
         connectToPeer(address);
     });     
 };
@@ -58,8 +58,8 @@ const getPeers = () => peers.filter(notEmpty);
 const acceptConnection = (ws: WebSocket) => {    
     openConnection(ws);    
     ws.on('message', (data: string) => handleMessage(ws, data));
-    ws.on('close', () => closeConnection(ws));
-    ws.on('error', () => closeConnection(ws));
+    ws.on('close', () => closeConnection(ws, "closed"));
+    ws.on('error', () => closeConnection(ws, "error"));
 };
 
 const openConnection = (ws: WebSocket) => {
@@ -69,10 +69,11 @@ const openConnection = (ws: WebSocket) => {
     if(ws.url != null && ws.url != "null" && ws.url != undefined && !IsPeerInList(ws.url)){        
         peers.push(ws.url);
         console.log("Added peer " + ws.url);
-        write(ws, queryPeersMsg());
+        write(ws, queryPeersMsg()); 
+        broadcast(responsePeerListMsg());
     }
                
-    broadcast(responsePeerListMsg());
+   
     write(ws, queryChainLengthMsg());
 
     // query transactions pool only some time after chain query
@@ -81,11 +82,11 @@ const openConnection = (ws: WebSocket) => {
     }, 500); 
 };
 
-const closeConnection = (myWs: WebSocket) => {
-        console.log('Connection closed with peer: ' + myWs.url);        
+const closeConnection = (myWs: WebSocket, trigger: string) => {
+        console.log('Connection '+ trigger +' with peer: ' + myWs.url);        
         sockets.splice(sockets.indexOf(myWs), 1);
         peers.splice(peers.indexOf(myWs.url), 1);
-        if(server.clients.size == 0 || peers.length == 0){
+        if(server.clients.size == 0 && peers.length == 0){
             startupPeerList.forEach(address => {
                 console.log('Trying to connect node to: ' + address);
                 connectToPeer(address);
@@ -240,7 +241,7 @@ const connectToPeer = (newPeer: string): void => {
    
     ws.on('error', () => {
         console.log('Failed to connect to: ' + newPeer);
-        if(server.clients.size == 0 || peers.length == 0){
+        if(server.clients.size == 0 && peers.length == 0){
             startupPeerList.forEach(address => {
                 console.log('Trying to connect node to: ' + address);
                 connectToPeer(address);
