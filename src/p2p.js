@@ -204,12 +204,13 @@ const handleBlockchainResponse = (receivedBlocks) => {
 };
 //Check if peer is in the peer list already.
 function IsPeerInList(newPeer) {
+    let check = false;
     peers.forEach(peer => {
         if (peer == newPeer) {
-            return true;
+            check = true;
         }
     });
-    return false;
+    return check;
 }
 const connectToPeer = (newPeer) => {
     const ws = new WebSocket(newPeer);
