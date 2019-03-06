@@ -34,7 +34,7 @@ const initP2PServer = (p2pPort: number) => {
     server.on('connection', (ws: WebSocket, req: IncomingMessage) => {          
         const ip = req.connection.remoteAddress.replace(/^.*:/, '');
         //const port = req.connection.remotePort;
-        if(ip != req.connection.localAddress.replace(/^.*:/, '')){
+        if(ip != req.connection.localAddress.replace(/^.*:/, '')){            
             acceptConnection(ws);
 
             if(ip != null && ip != undefined && !IsPeerInList("ws://"+ip+":"+p2pPort)){
@@ -64,7 +64,9 @@ const acceptConnection = (ws: WebSocket) => {
 
 const openConnection = (ws: WebSocket) => {
     console.log('Opened connection to: ' + ws.url);
-    sockets.push(ws);
+    if(!IsSocketInList(ws)){
+        sockets.push(ws);
+    }
 
     if(ws.url != null && ws.url != "null" && ws.url != undefined && !IsPeerInList(ws.url)){        
         peers.push(ws.url);
@@ -227,6 +229,17 @@ function IsPeerInList(newPeer){
     let check = false;
     peers.forEach(peer => {
         if(peer == newPeer){
+            check = true;
+        }
+    });
+    return check; 
+}
+
+//Check if peer is in the peer list already.
+function IsSocketInList(newSocket){
+    let check = false;
+    sockets.forEach(socket => {
+        if(socket == newSocket){
             check = true;
         }
     });
