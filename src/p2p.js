@@ -6,7 +6,7 @@ const transactionPool_1 = require("./transactionPool");
 const sockets = [];
 const peers = [];
 let server;
-const startupPeerList = ["ws://192.168.1.144:6001", "ws://192.168.1.163:6001"]; //Fill in 2 real nodes here!!
+const startupPeerList = ["ws://192.168.1.144:6001"]; //,"ws://192.168.1.163:6001"]; //Fill in 2 real nodes here!!
 var MessageType;
 (function (MessageType) {
     MessageType[MessageType["QUERY_LATEST"] = 0] = "QUERY_LATEST";
@@ -27,6 +27,11 @@ const initP2PServer = (p2pPort) => {
         //const port = req.connection.remotePort;
         if (ip != req.connection.localAddress.replace(/^.*:/, '')) {
             acceptConnection(ws);
+            console.log("Connecting ip: " + ip);
+            if (ip != null && ip != undefined && !IsPeerInList(ip + ":" + p2pPort)) {
+                console.log("Try connect to this ip....");
+                connectToPeer(ip + ":" + p2pPort);
+            }
         }
     });
     console.log('Listening websocket p2p port on: ' + p2pPort);
@@ -51,9 +56,9 @@ const openConnection = (ws) => {
     sockets.push(ws);
     if (ws.url != null && ws.url != "null" && ws.url != undefined && !IsPeerInList(ws.url)) {
         peers.push(ws.url);
+        console.log("Added peer " + ws.url);
+        write(ws, queryPeersMsg());
     }
-    console.log("Added peer " + ws.url);
-    write(ws, queryPeersMsg());
     broadcast(responsePeerListMsg());
     write(ws, queryChainLengthMsg());
     // query transactions pool only some time after chain query

@@ -11,7 +11,7 @@ import { IncomingMessage } from 'http';
 const sockets: WebSocket[] = [];
 const peers: string[] = []; 
 let server: Server;
-const startupPeerList: string[] = ["ws://192.168.1.144:6001","ws://192.168.1.163:6001"]; //Fill in 2 real nodes here!!
+const startupPeerList: string[] = ["ws://192.168.1.144:6001"];//,"ws://192.168.1.163:6001"]; //Fill in 2 real nodes here!!
 
 enum MessageType {
     QUERY_LATEST = 0,
@@ -36,6 +36,11 @@ const initP2PServer = (p2pPort: number) => {
         //const port = req.connection.remotePort;
         if(ip != req.connection.localAddress.replace(/^.*:/, '')){
             acceptConnection(ws);
+            console.log("Connecting ip: " + ip);
+            if(ip != null && ip != undefined && !IsPeerInList(ip+":"+p2pPort)){
+                console.log("Try connect to this ip....");
+                connectToPeer(ip+":"+p2pPort);
+            }
         }
     });
 
@@ -59,11 +64,14 @@ const acceptConnection = (ws: WebSocket) => {
 const openConnection = (ws: WebSocket) => {
     console.log('Opened connection to: ' + ws.url);
     sockets.push(ws);
+
     if(ws.url != null && ws.url != "null" && ws.url != undefined && !IsPeerInList(ws.url)){        
         peers.push(ws.url);
+        console.log("Added peer " + ws.url);
+        write(ws, queryPeersMsg());
     }
-    console.log("Added peer " + ws.url);    
-    write(ws, queryPeersMsg());
+           
+    
     broadcast(responsePeerListMsg());
     write(ws, queryChainLengthMsg());
 
