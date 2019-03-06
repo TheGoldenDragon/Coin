@@ -214,20 +214,14 @@ const handleBlockchainResponse = (receivedBlocks: Block[]) => {
     }
 };
 
+//Check if peer is in the peer list already.
 function CheckPeerList(newPeer){
-    let peerIsInList = false;
-
-    //Check if newPeer is in peerlist.
     peers.forEach(peer => {
-        if(peer == newPeer){
-            peerIsInList = true;              
-            //console.log("Checked peer is already in the list");                
-        }             
+        if(peer == newPeer)
+            return true;
     });
-    return peerIsInList; 
+    return false; 
 }
-
-
 
 const connectToPeer = (newPeer: string): void => {
     const ws: WebSocket = new WebSocket(newPeer);
