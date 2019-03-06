@@ -59,7 +59,7 @@ const acceptConnection = (ws: WebSocket) => {
 const openConnection = (ws: WebSocket) => {
     console.log('Opened connection to: ' + ws.url);
     sockets.push(ws);
-    if(ws.url != null || ws.url != "null" || ws.url != undefined){
+    if(ws.url != null && ws.url != "null" && ws.url != undefined && !IsPeerInList(ws.url)){        
         peers.push(ws.url);
     }
     console.log("Added peer " + ws.url);    
@@ -147,8 +147,7 @@ const handleMessage = (ws: WebSocket, data: string) => {
                 }
                 
                 receivedPeersFiltered.forEach(newPeer => {  
-                    if(!CheckPeerList(newPeer))                      
-                        connectToPeer(newPeer);
+                    if(!IsPeerInList(newPeer)) {connectToPeer(newPeer);}
                 });
                 break;
         }
@@ -215,10 +214,11 @@ const handleBlockchainResponse = (receivedBlocks: Block[]) => {
 };
 
 //Check if peer is in the peer list already.
-function CheckPeerList(newPeer){
+function IsPeerInList(newPeer){
     peers.forEach(peer => {
-        if(peer == newPeer)
+        if(peer == newPeer){
             return true;
+        }
     });
     return false; 
 }
